@@ -8,8 +8,8 @@ contract CharacterFactory {
     error CannotCreateCharacter();
 
     uint256 public charactersNo;
-    mapping(uint256 => address) public tokenidToCharacterAddress;
-    mapping(address => address) characterAddressToOwner;
+    mapping(uint256 => address) public tokenIdToCharacterAddress;
+    mapping(address => address) public characterAddressToOwner;
 
     address systemAddress = 0xDeaDDEaDDeAdDeAdDEAdDEaddeAddEAdDEAd0001;
 
@@ -49,11 +49,11 @@ contract CharacterFactory {
         );
 
         Character char = Character(payable(characterAddress));
-    character.initializer(owner, id, traits, address(this));
+        char.initializer(id, traits, address(this));
 
         emit CharacterCreated(owner, id, traits, address(char));
 
-        return address(wallet);
+        return address(char);
     }
 
     /// @notice changes the address which controls the character contract
@@ -63,7 +63,7 @@ contract CharacterFactory {
     function changeCharacterOwner(uint256 id, address newOwner) external {
         if (msg.sender != systemAddress) revert CannotCreateCharacter();
 
-        address targetCharacter = tokenidToCharacterAddress(id);
+        address targetCharacter = tokenIdToCharacterAddress[id];
         characterAddressToOwner[targetCharacter] = newOwner;
     }
 }
