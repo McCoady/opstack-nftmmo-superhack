@@ -6,6 +6,7 @@ import "lib/openzeppelin-contracts/contracts//utils/Create2.sol";
 
 contract CharacterFactory {
     error CannotCreateCharacter();
+    error CharacterIdExists();
 
     uint256 public charactersNo;
     mapping(uint256 => address) public tokenIdToCharacterAddress;
@@ -32,6 +33,7 @@ contract CharacterFactory {
         uint256 traits
     ) external payable returns (address) {
         if (msg.sender != systemAddress) revert CannotCreateCharacter();
+        if (tokenIdToCharacterAddress[id] != address(0)) revert CharacterIdExists();
 
         bytes32 _salt = keccak256(
             abi.encodePacked(abi.encode(id, address(msg.sender)))
@@ -50,6 +52,9 @@ contract CharacterFactory {
 
         Character char = Character(payable(characterAddress));
         char.initializer(id, traits, address(this));
+
+        tokenIdToCharacterAddress[id] = characterAddress;
+        characterAddressToOwner[characterAddress] = owner;
 
         emit CharacterCreated(owner, id, traits, address(char));
 

@@ -50,9 +50,11 @@ contract UnnamedNft is ERC721, Owned {
     /// @notice allows owner to withdraw 50% of the funds raised (other 50% bridged to L2 chain)
     function withdraw() external onlyOwner {
         if (withdrawn) revert WithdrawComplete();
-        uint256 withdrawAmount = address(this).balance / 2 - 1;
+        uint256 withdrawAmount = address(this).balance / 2;
         (bool sent, bytes memory data) = msg.sender.call{value: withdrawAmount}("");
         require(sent, "Failed to send Ether");
+
+        withdrawn = true;
     }
 
 }
